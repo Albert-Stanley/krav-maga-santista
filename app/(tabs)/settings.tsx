@@ -1,7 +1,15 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Moon, Sun, Bell, Shield, CircleHelp as HelpCircle, Info, ChevronRight } from 'lucide-react-native';
+import {
+  Moon,
+  Sun,
+  Bell,
+  Shield,
+  CircleHelp as HelpCircle,
+  Info,
+  ChevronRight,
+} from 'lucide-react-native';
 import { Card } from '@/components/ui/Card';
 import { useThemeStore } from '@/store/theme';
 
@@ -96,34 +104,48 @@ export default function Settings() {
         }`}
         activeOpacity={0.7}
       >
-        <View className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${
-          isDark ? 'bg-gray-700' : 'bg-gray-100'
-        }`}>
+        <View
+          className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${
+            isDark ? 'bg-gray-700' : 'bg-gray-100'
+          }`}
+        >
           <IconComponent size={20} color={isDark ? '#e5e7eb' : '#374151'} />
         </View>
 
         <View className="flex-1">
-          <Text className={`text-base font-inter-medium ${
-            isDark ? 'text-white' : 'text-gray-900'
-          }`}>
+          <Text
+            className={`text-base font-inter-medium ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}
+          >
             {item.title}
           </Text>
           {item.subtitle && (
-            <Text className={`text-sm font-inter-regular mt-1 ${
-              isDark ? 'text-gray-400' : 'text-gray-600'
-            }`}>
+            <Text
+              className={`text-sm font-inter-regular mt-1 ${
+                isDark ? 'text-gray-400' : 'text-gray-600'
+              }`}
+            >
               {item.subtitle}
             </Text>
           )}
         </View>
 
         {item.action === 'toggle' && (
-          <View className={`w-12 h-6 rounded-full p-1 ${
-            item.value ? 'bg-primary-600' : (isDark ? 'bg-gray-600' : 'bg-gray-300')
-          }`}>
-            <View className={`w-4 h-4 rounded-full bg-white transition-transform ${
-              item.value ? 'translate-x-6' : 'translate-x-0'
-            }`} />
+          <View
+            className={`w-12 h-6 rounded-full p-1 ${
+              item.value
+                ? 'bg-primary-600'
+                : isDark
+                ? 'bg-gray-600'
+                : 'bg-gray-300'
+            }`}
+          >
+            <View
+              className={`w-4 h-4 rounded-full bg-white transition-transform ${
+                item.value ? 'translate-x-6' : 'translate-x-0'
+              }`}
+            />
           </View>
         )}
 
@@ -135,19 +157,26 @@ export default function Settings() {
   };
 
   return (
-    <SafeAreaView className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}
+    >
       <ScrollView className="flex-1">
         <View className="px-6 py-8">
           {/* Header */}
           <View className="mb-8">
-            <Text className={`text-3xl font-inter-bold mb-2 ${
-              isDark ? 'text-white' : 'text-gray-900'
-            }`}>
+            <Text
+              className={`text-3xl font-inter-bold mb-2 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}
+            >
               Configurações
             </Text>
-            <Text className={`text-lg font-inter-regular ${
-              isDark ? 'text-gray-400' : 'text-gray-600'
-            }`}>
+            <Text
+              className={`text-lg font-inter-regular ${
+                isDark ? 'text-gray-400' : 'text-gray-600'
+              }`}
+            >
               Personalize sua experiência no app
             </Text>
           </View>
@@ -156,9 +185,11 @@ export default function Settings() {
           <View className="space-y-6">
             {settingsGroups.map((group, groupIndex) => (
               <View key={groupIndex}>
-                <Text className={`text-sm font-inter-semibold mb-3 ${
-                  isDark ? 'text-gray-400' : 'text-gray-600'
-                } uppercase tracking-wide`}>
+                <Text
+                  className={`text-sm font-inter-semibold mb-3 ${
+                    isDark ? 'text-gray-400' : 'text-gray-600'
+                  } uppercase tracking-wide`}
+                >
                   {group.title}
                 </Text>
                 <Card>
@@ -167,9 +198,11 @@ export default function Settings() {
                       <View key={item.id}>
                         {renderSettingItem(item)}
                         {itemIndex < group.items.length - 1 && (
-                          <View className={`h-px ml-14 ${
-                            isDark ? 'bg-gray-700' : 'bg-gray-200'
-                          }`} />
+                          <View
+                            className={`h-px ml-14 ${
+                              isDark ? 'bg-gray-700' : 'bg-gray-200'
+                            }`}
+                          />
                         )}
                       </View>
                     ))}

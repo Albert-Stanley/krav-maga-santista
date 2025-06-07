@@ -72,19 +72,26 @@ export default function Classes() {
   };
 
   return (
-    <SafeAreaView className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}
+    >
       <ScrollView className="flex-1">
         <View className="px-6 py-8">
           {/* Header */}
           <View className="mb-8">
-            <Text className={`text-3xl font-inter-bold mb-2 ${
-              isDark ? 'text-white' : 'text-gray-900'
-            }`}>
+            <Text
+              className={`text-3xl font-inter-bold mb-2 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}
+            >
               Aulas
             </Text>
-            <Text className={`text-lg font-inter-regular ${
-              isDark ? 'text-gray-400' : 'text-gray-600'
-            }`}>
+            <Text
+              className={`text-lg font-inter-regular ${
+                isDark ? 'text-gray-400' : 'text-gray-600'
+              }`}
+            >
               Confira as próximas aulas disponíveis
             </Text>
           </View>
@@ -95,46 +102,66 @@ export default function Classes() {
               <Card key={classItem.id}>
                 <View className="space-y-3">
                   <View className="flex-row justify-between items-start">
-                    <Text className={`text-lg font-inter-semibold flex-1 ${
-                      isDark ? 'text-white' : 'text-gray-900'
-                    }`}>
+                    <Text
+                      className={`text-lg font-inter-semibold flex-1 ${
+                        isDark ? 'text-white' : 'text-gray-900'
+                      }`}
+                    >
                       {classItem.name}
                     </Text>
-                    <Text className={`text-sm font-inter-medium ${getLevelColor(classItem.level)}`}>
+                    <Text
+                      className={`text-sm font-inter-medium ${getLevelColor(
+                        classItem.level
+                      )}`}
+                    >
                       {classItem.level}
                     </Text>
                   </View>
 
-                  <Text className={`text-base font-inter-medium ${
-                    isDark ? 'text-gray-200' : 'text-gray-800'
-                  }`}>
+                  <Text
+                    className={`text-base font-inter-medium ${
+                      isDark ? 'text-gray-200' : 'text-gray-800'
+                    }`}
+                  >
                     Instrutor: {classItem.instructor}
                   </Text>
 
                   <View className="space-y-2">
                     <View className="flex-row items-center">
-                      <Calendar size={16} color={isDark ? '#9ca3af' : '#6b7280'} />
-                      <Text className={`ml-2 text-sm font-inter-regular ${
-                        isDark ? 'text-gray-400' : 'text-gray-600'
-                      }`}>
+                      <Calendar
+                        size={16}
+                        color={isDark ? '#9ca3af' : '#6b7280'}
+                      />
+                      <Text
+                        className={`ml-2 text-sm font-inter-regular ${
+                          isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                      >
                         {classItem.date}
                       </Text>
                     </View>
 
                     <View className="flex-row items-center">
                       <Clock size={16} color={isDark ? '#9ca3af' : '#6b7280'} />
-                      <Text className={`ml-2 text-sm font-inter-regular ${
-                        isDark ? 'text-gray-400' : 'text-gray-600'
-                      }`}>
+                      <Text
+                        className={`ml-2 text-sm font-inter-regular ${
+                          isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                      >
                         {classItem.time}
                       </Text>
                     </View>
 
                     <View className="flex-row items-center">
-                      <MapPin size={16} color={isDark ? '#9ca3af' : '#6b7280'} />
-                      <Text className={`ml-2 text-sm font-inter-regular ${
-                        isDark ? 'text-gray-400' : 'text-gray-600'
-                      }`}>
+                      <MapPin
+                        size={16}
+                        color={isDark ? '#9ca3af' : '#6b7280'}
+                      />
+                      <Text
+                        className={`ml-2 text-sm font-inter-regular ${
+                          isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                      >
                         {classItem.location}
                       </Text>
                     </View>

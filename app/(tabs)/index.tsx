@@ -1,8 +1,14 @@
 import React from 'react';
-import { View, Text, ScrollView, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  Dimensions,
+  ActivityIndicator,
+  Image,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  Shield,
   Calendar,
   CreditCard,
   Trophy,
@@ -17,9 +23,10 @@ import { PaymentStatusBadge } from '@/components/ui/PaymentStatusBadge';
 import { useAuthStore } from '@/store/auth';
 import { useThemeStore } from '@/store/theme';
 import { currentUser } from '@/data/mockData';
+const logo = require('@/assets/images/logo_app.png'); // Ajuste o caminho conforme necessário
 
 export default function Home() {
-  const { user } = useAuthStore();
+  const { user, isLoading } = useAuthStore();
   const { theme } = useThemeStore();
   const isDark = theme === 'dark';
   const screenWidth = Dimensions.get('window').width;
@@ -27,6 +34,20 @@ export default function Home() {
 
   // Use current user from mock data for demo
   const student = user || currentUser;
+
+  // verificação para evitar crash se 'student' for nulo
+  if (isLoading || !student) {
+    return (
+      <SafeAreaView
+        edges={['top', 'left', 'right']}
+        className={`flex-1 items-center justify-center ${
+          isDark ? 'bg-gray-900' : 'bg-gray-50'
+        }`}
+      >
+        <ActivityIndicator size="large" color={isDark ? '#fff' : '#000'} />
+      </SafeAreaView>
+    );
+  }
 
   const formatDate = (dateString: string) => {
     return dayjs(dateString).format('DD/MM/YYYY');
@@ -66,7 +87,10 @@ export default function Home() {
   ];
 
   return (
-    <SafeAreaView className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}
+    >
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View
           className={`px-6 py-8 ${isWeb ? 'max-w-4xl mx-auto w-full' : ''}`}
@@ -74,9 +98,16 @@ export default function Home() {
           {/* Header */}
           <View className="flex-row justify-between items-center mb-8">
             <View className="flex-row items-center flex-1">
-              <View className="w-12 h-12 bg-primary-600 rounded-full items-center justify-center mr-4">
-                <Shield size={24} color="#fff" />
+              {/*  Logo da aplicação  */}
+
+              <View className="w-12 h-12 rounded-full items-center justify-center mr-4">
+                <Image
+                  source={logo}
+                  className="w-12 h-20 mb-4"
+                  resizeMode="contain"
+                />
               </View>
+
               <View className="flex-1">
                 <Text
                   className={`text-xl font-bold ${

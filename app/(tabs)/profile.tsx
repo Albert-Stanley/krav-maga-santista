@@ -1,10 +1,28 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  Dimensions,
+  ActivityIndicator,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { User, Mail, Phone, Calendar, MapPin, UserCheck, CreditCard as Edit3, Save, X } from 'lucide-react-native';
+import {
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  UserCheck,
+  Edit,
+  Save,
+  X,
+} from 'lucide-react-native';
 import { router } from 'expo-router';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -32,14 +50,14 @@ const profileSchema = z.object({
 type ProfileFormData = z.infer<typeof profileSchema>;
 
 export default function Profile() {
-  const { user, logout } = useAuthStore();
+  const { user, logout, isLoading: isAuthLoading } = useAuthStore();
   const { theme } = useThemeStore();
   const isDark = theme === 'dark';
   const screenWidth = Dimensions.get('window').width;
   const isWeb = screenWidth > 768;
-  
+
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Use current user from mock data for demo
   const student = user || currentUser;
@@ -48,24 +66,46 @@ export default function Profile() {
     control,
     handleSubmit,
     reset,
-    formState: { errors }
+    formState: { errors },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: student.name,
-      email: student.email,
-      phone: student.phone || '',
-      street: student.address?.street || '',
-      number: student.address?.number || '',
-      neighborhood: student.address?.neighborhood || '',
-      city: student.address?.city || '',
-      state: student.address?.state || '',
-      zipCode: student.address?.zipCode || '',
-      emergencyContactName: student.emergencyContact?.name || '',
-      emergencyContactPhone: student.emergencyContact?.phone || '',
-      emergencyContactRelationship: student.emergencyContact?.relationship || '',
-    }
+      name: student?.name || '',
+      email: student?.email || '',
+      phone: student?.phone || '',
+      street: student?.address?.street || '',
+      number: student?.address?.number || '',
+      neighborhood: student?.address?.neighborhood || '',
+      city: student?.address?.city || '',
+      state: student?.address?.state || '',
+      zipCode: student?.address?.zipCode || '',
+      emergencyContactName: student?.emergencyContact?.name || '',
+      emergencyContactPhone: student?.emergencyContact?.phone || '',
+      emergencyContactRelationship:
+        student?.emergencyContact?.relationship || '',
+    },
   });
+
+  // Efeito para resetar o formulário quando o usuário mudar ou o modo de edição for ativado
+  useEffect(() => {
+    if (student) {
+      reset({
+        name: student.name,
+        email: student.email,
+        phone: student.phone || '',
+        street: student.address?.street || '',
+        number: student.address?.number || '',
+        neighborhood: student.address?.neighborhood || '',
+        city: student.address?.city || '',
+        state: student.address?.state || '',
+        zipCode: student.address?.zipCode || '',
+        emergencyContactName: student.emergencyContact?.name || '',
+        emergencyContactPhone: student.emergencyContact?.phone || '',
+        emergencyContactRelationship:
+          student.emergencyContact?.relationship || '',
+      });
+    }
+  }, [student, isEditing, reset]);
 
   const handleLogout = () => {
     Alert.alert(
@@ -73,27 +113,29 @@ export default function Profile() {
       'Tem certeza que deseja sair da sua conta?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        { 
-          text: 'Sair', 
+        {
+          text: 'Sair',
           style: 'destructive',
           onPress: () => {
             logout();
             router.replace('/login');
-          }
-        }
+          },
+        },
       ]
     );
   };
 
   const handleSave = async (data: ProfileFormData) => {
-    setIsLoading(true);
-    
+    setIsSaving(true);
+
+    // Remove before production
+    console.log('Dados salvos:', data);
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     Alert.alert('Sucesso', 'Perfil atualizado com sucesso!');
     setIsEditing(false);
-    setIsLoading(false);
+    setIsSaving(false);
   };
 
   const handleCancel = () => {
@@ -101,9 +143,12 @@ export default function Profile() {
     setIsEditing(false);
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
+    // Verificação para data inválida
+    if (isNaN(date.getTime())) return '';
+    return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
   };
 
   const formatPhone = (text: string) => {
@@ -115,18 +160,39 @@ export default function Profile() {
     return text;
   };
 
+  // Verificação de carregamento para uma melhor UX
+  if (isAuthLoading || !student) {
+    return (
+      <SafeAreaView
+        edges={['top', 'left', 'right']}
+        className={`flex-1 items-center justify-center ${
+          isDark ? 'bg-gray-900' : 'bg-gray-50'
+        }`}
+      >
+        <ActivityIndicator size="large" color={isDark ? '#fff' : '#000'} />
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <SafeAreaView
+      edges={['top', 'left', 'right']}
+      className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}
+    >
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className={`px-6 py-8 ${isWeb ? 'max-w-4xl mx-auto w-full' : ''}`}>
+        <View
+          className={`px-6 py-8 ${isWeb ? 'max-w-4xl mx-auto w-full' : ''}`}
+        >
           {/* Header */}
           <View className="flex-row justify-between items-center mb-8">
-            <Text className={`text-2xl font-bold ${
-              isDark ? 'text-white' : 'text-gray-900'
-            }`}>
+            <Text
+              className={`text-2xl font-bold ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}
+            >
               Perfil
             </Text>
-            
+
             {!isEditing ? (
               <TouchableOpacity
                 onPress={() => setIsEditing(true)}
@@ -134,7 +200,7 @@ export default function Profile() {
                   isDark ? 'bg-gray-800' : 'bg-white'
                 }`}
               >
-                <Edit3 size={20} color={isDark ? '#e5e7eb' : '#374151'} />
+                <Edit size={20} color={isDark ? '#e5e7eb' : '#374151'} />
               </TouchableOpacity>
             ) : (
               <View className="flex-row space-x-2">
@@ -149,7 +215,7 @@ export default function Profile() {
                 <TouchableOpacity
                   onPress={handleSubmit(handleSave)}
                   className="p-2 rounded-lg bg-primary-600"
-                  disabled={isLoading}
+                  disabled={isSaving}
                 >
                   <Save size={20} color="#fff" />
                 </TouchableOpacity>
@@ -160,30 +226,38 @@ export default function Profile() {
           {/* Profile Header Card */}
           <Card style={{ marginBottom: 24 }}>
             <View className="items-center">
-              <View className={`w-20 h-20 rounded-full items-center justify-center mb-4 ${
-                isDark ? 'bg-gray-700' : 'bg-gray-200'
-              }`}>
+              <View
+                className={`w-20 h-20 rounded-full items-center justify-center mb-4 ${
+                  isDark ? 'bg-gray-700' : 'bg-gray-200'
+                }`}
+              >
                 <User size={32} color={isDark ? '#e5e7eb' : '#374151'} />
               </View>
-              
-              <Text className={`text-xl font-bold mb-2 ${
-                isDark ? 'text-white' : 'text-gray-900'
-              }`}>
+
+              <Text
+                className={`text-xl font-bold mb-2 ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}
+              >
                 {student.name}
               </Text>
-              
+
               <View className="flex-row items-center mb-3">
                 <RankBadge rank={student.rank} size="md" />
-                <Text className={`ml-2 font-medium ${
-                  isDark ? 'text-gray-300' : 'text-gray-700'
-                }`}>
+                <Text
+                  className={`ml-2 font-medium ${
+                    isDark ? 'text-gray-300' : 'text-gray-700'
+                  }`}
+                >
                   {student.rank.name}
                 </Text>
               </View>
-              
-              <Text className={`text-center ${
-                isDark ? 'text-gray-400' : 'text-gray-600'
-              }`}>
+
+              <Text
+                className={`text-center ${
+                  isDark ? 'text-gray-400' : 'text-gray-600'
+                }`}
+              >
                 Membro desde {formatDate(student.joinDate)}
               </Text>
             </View>
@@ -191,9 +265,11 @@ export default function Profile() {
 
           {/* Personal Information */}
           <Card style={{ marginBottom: 24 }}>
-            <Text className={`text-lg font-semibold mb-4 ${
-              isDark ? 'text-white' : 'text-gray-900'
-            }`}>
+            <Text
+              className={`text-lg font-semibold mb-4 ${
+                isDark ? 'text-white' : 'text-gray-900'
+              }`}
+            >
               Informações Pessoais
             </Text>
 
@@ -251,14 +327,18 @@ export default function Profile() {
                   <View className="flex-row items-center">
                     <Mail size={20} color={isDark ? '#9ca3af' : '#6b7280'} />
                     <View className="ml-3 flex-1">
-                      <Text className={`text-sm ${
-                        isDark ? 'text-gray-400' : 'text-gray-600'
-                      }`}>
+                      <Text
+                        className={`text-sm ${
+                          isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                      >
                         Email
                       </Text>
-                      <Text className={`text-base font-medium ${
-                        isDark ? 'text-white' : 'text-gray-900'
-                      }`}>
+                      <Text
+                        className={`text-base font-medium ${
+                          isDark ? 'text-white' : 'text-gray-900'
+                        }`}
+                      >
                         {student.email}
                       </Text>
                     </View>
@@ -268,14 +348,18 @@ export default function Profile() {
                     <View className="flex-row items-center">
                       <Phone size={20} color={isDark ? '#9ca3af' : '#6b7280'} />
                       <View className="ml-3 flex-1">
-                        <Text className={`text-sm ${
-                          isDark ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
+                        <Text
+                          className={`text-sm ${
+                            isDark ? 'text-gray-400' : 'text-gray-600'
+                          }`}
+                        >
                           Telefone
                         </Text>
-                        <Text className={`text-base font-medium ${
-                          isDark ? 'text-white' : 'text-gray-900'
-                        }`}>
+                        <Text
+                          className={`text-base font-medium ${
+                            isDark ? 'text-white' : 'text-gray-900'
+                          }`}
+                        >
                           {student.phone}
                         </Text>
                       </View>
@@ -284,16 +368,23 @@ export default function Profile() {
 
                   {student.birthDate && (
                     <View className="flex-row items-center">
-                      <Calendar size={20} color={isDark ? '#9ca3af' : '#6b7280'} />
+                      <Calendar
+                        size={20}
+                        color={isDark ? '#9ca3af' : '#6b7280'}
+                      />
                       <View className="ml-3 flex-1">
-                        <Text className={`text-sm ${
-                          isDark ? 'text-gray-400' : 'text-gray-600'
-                        }`}>
+                        <Text
+                          className={`text-sm ${
+                            isDark ? 'text-gray-400' : 'text-gray-600'
+                          }`}
+                        >
                           Data de Nascimento
                         </Text>
-                        <Text className={`text-base font-medium ${
-                          isDark ? 'text-white' : 'text-gray-900'
-                        }`}>
+                        <Text
+                          className={`text-base font-medium ${
+                            isDark ? 'text-white' : 'text-gray-900'
+                          }`}
+                        >
                           {formatDate(student.birthDate)}
                         </Text>
                       </View>
@@ -307,15 +398,19 @@ export default function Profile() {
           {/* Address Information */}
           {(isEditing || student.address) && (
             <Card style={{ marginBottom: 24 }}>
-              <Text className={`text-lg font-semibold mb-4 ${
-                isDark ? 'text-white' : 'text-gray-900'
-              }`}>
+              <Text
+                className={`text-lg font-semibold mb-4 ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}
+              >
                 Endereço
               </Text>
 
               {isEditing ? (
                 <View className="space-y-4">
-                  <View className={`${isWeb ? 'flex-row space-x-4' : 'space-y-4'}`}>
+                  <View
+                    className={`${isWeb ? 'flex-row space-x-4' : 'space-y-4'}`}
+                  >
                     <View className={isWeb ? 'flex-1' : ''}>
                       <Controller
                         control={control}
@@ -362,7 +457,9 @@ export default function Profile() {
                     )}
                   />
 
-                  <View className={`${isWeb ? 'flex-row space-x-4' : 'space-y-4'}`}>
+                  <View
+                    className={`${isWeb ? 'flex-row space-x-4' : 'space-y-4'}`}
+                  >
                     <View className={isWeb ? 'flex-1' : ''}>
                       <Controller
                         control={control}
@@ -411,32 +508,43 @@ export default function Profile() {
                     </View>
                   </View>
                 </View>
-              ) : student.address && (
-                <View className="flex-row items-start">
-                  <MapPin size={20} color={isDark ? '#9ca3af' : '#6b7280'} />
-                  <View className="ml-3 flex-1">
-                    <Text className={`text-sm ${
-                      isDark ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
-                      Endereço
-                    </Text>
-                    <Text className={`text-base font-medium ${
-                      isDark ? 'text-white' : 'text-gray-900'
-                    }`}>
-                      {student.address.street}, {student.address.number}
-                    </Text>
-                    <Text className={`text-sm ${
-                      isDark ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
-                      {student.address.neighborhood}, {student.address.city} - {student.address.state}
-                    </Text>
-                    <Text className={`text-sm ${
-                      isDark ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
-                      CEP: {student.address.zipCode}
-                    </Text>
+              ) : (
+                student.address && (
+                  <View className="flex-row items-start">
+                    <MapPin size={20} color={isDark ? '#9ca3af' : '#6b7280'} />
+                    <View className="ml-3 flex-1">
+                      <Text
+                        className={`text-sm ${
+                          isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                      >
+                        Endereço
+                      </Text>
+                      <Text
+                        className={`text-base font-medium ${
+                          isDark ? 'text-white' : 'text-gray-900'
+                        }`}
+                      >
+                        {student.address.street}, {student.address.number}
+                      </Text>
+                      <Text
+                        className={`text-sm ${
+                          isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                      >
+                        {student.address.neighborhood}, {student.address.city} -{' '}
+                        {student.address.state}
+                      </Text>
+                      <Text
+                        className={`text-sm ${
+                          isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                      >
+                        CEP: {student.address.zipCode}
+                      </Text>
+                    </View>
                   </View>
-                </View>
+                )
               )}
             </Card>
           )}
@@ -444,9 +552,11 @@ export default function Profile() {
           {/* Emergency Contact */}
           {(isEditing || student.emergencyContact) && (
             <Card style={{ marginBottom: 24 }}>
-              <Text className={`text-lg font-semibold mb-4 ${
-                isDark ? 'text-white' : 'text-gray-900'
-              }`}>
+              <Text
+                className={`text-lg font-semibold mb-4 ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}
+              >
                 Contato de Emergência
               </Text>
 
@@ -496,27 +606,38 @@ export default function Profile() {
                     )}
                   />
                 </View>
-              ) : student.emergencyContact && (
-                <View className="flex-row items-start">
-                  <UserCheck size={20} color={isDark ? '#9ca3af' : '#6b7280'} />
-                  <View className="ml-3 flex-1">
-                    <Text className={`text-base font-medium ${
-                      isDark ? 'text-white' : 'text-gray-900'
-                    }`}>
-                      {student.emergencyContact.name}
-                    </Text>
-                    <Text className={`text-sm ${
-                      isDark ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
-                      {student.emergencyContact.relationship}
-                    </Text>
-                    <Text className={`text-sm ${
-                      isDark ? 'text-gray-400' : 'text-gray-600'
-                    }`}>
-                      {student.emergencyContact.phone}
-                    </Text>
+              ) : (
+                student.emergencyContact && (
+                  <View className="flex-row items-start">
+                    <UserCheck
+                      size={20}
+                      color={isDark ? '#9ca3af' : '#6b7280'}
+                    />
+                    <View className="ml-3 flex-1">
+                      <Text
+                        className={`text-base font-medium ${
+                          isDark ? 'text-white' : 'text-gray-900'
+                        }`}
+                      >
+                        {student.emergencyContact.name}
+                      </Text>
+                      <Text
+                        className={`text-sm ${
+                          isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                      >
+                        {student.emergencyContact.relationship}
+                      </Text>
+                      <Text
+                        className={`text-sm ${
+                          isDark ? 'text-gray-400' : 'text-gray-600'
+                        }`}
+                      >
+                        {student.emergencyContact.phone}
+                      </Text>
+                    </View>
                   </View>
-                </View>
+                )
               )}
             </Card>
           )}
@@ -527,8 +648,8 @@ export default function Profile() {
               <Button
                 title="Salvar Alterações"
                 onPress={handleSubmit(handleSave)}
-                loading={isLoading}
-                disabled={isLoading}
+                loading={isSaving}
+                disabled={isSaving}
               />
             </View>
           )}
