@@ -53,7 +53,7 @@ export default function Login() {
               <View className="w-12 h-12 rounded-full items-center justify-center mr-4">
                 <Image
                   source={logo}
-                  className="w-12 h-20 mb-4"
+                  className="w-12 h-12 rounded-full"
                   resizeMode="contain"
                 />
               </View>

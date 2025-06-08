@@ -7,7 +7,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
-  Alert
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { X, ShoppingCart, Package, Truck } from 'lucide-react-native';
@@ -23,13 +23,17 @@ interface ProductDetailModalProps {
   onClose: () => void;
 }
 
-export function ProductDetailModal({ visible, product, onClose }: ProductDetailModalProps) {
+export function ProductDetailModal({
+  visible,
+  product,
+  onClose,
+}: ProductDetailModalProps) {
   const { theme } = useThemeStore();
   const { addPurchaseIntent } = useProductsStore();
   const { user } = useAuthStore();
   const isDark = theme === 'dark';
   const screenWidth = Dimensions.get('window').width;
-  
+
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
@@ -39,7 +43,7 @@ export function ProductDetailModal({ visible, product, onClose }: ProductDetailM
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'BRL',
     }).format(price);
   };
 
@@ -62,7 +66,7 @@ export function ProductDetailModal({ visible, product, onClose }: ProductDetailM
       productId: product.id,
       quantity,
       size: selectedSize || undefined,
-      color: selectedColor || undefined
+      color: selectedColor || undefined,
     });
 
     Alert.alert(
@@ -78,14 +82,20 @@ export function ProductDetailModal({ visible, product, onClose }: ProductDetailM
       animationType="slide"
       presentationStyle="pageSheet"
     >
-      <SafeAreaView className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <SafeAreaView
+        className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}
+      >
         {/* Header */}
-        <View className={`flex-row items-center justify-between p-4 border-b ${
-          isDark ? 'border-gray-700' : 'border-gray-200'
-        }`}>
-          <Text className={`text-lg font-semibold ${
-            isDark ? 'text-white' : 'text-gray-900'
-          }`}>
+        <View
+          className={`flex-row items-center justify-between p-4 border-b ${
+            isDark ? 'border-gray-700' : 'border-gray-200'
+          }`}
+        >
+          <Text
+            className={`text-lg font-semibold ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}
+          >
             Detalhes do Produto
           </Text>
           <TouchableOpacity onPress={onClose}>
@@ -96,11 +106,15 @@ export function ProductDetailModal({ visible, product, onClose }: ProductDetailM
         <ScrollView className="flex-1">
           {/* Product Images */}
           <View className="h-80">
-            <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false}>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+            >
               {product.images.map((image, index) => (
                 <Image
                   key={index}
-                  source={{ uri: image }}
+                  source={typeof image === 'string' ? { uri: image } : image}
                   style={{ width: screenWidth, height: 320 }}
                   resizeMode="cover"
                 />
@@ -111,81 +125,111 @@ export function ProductDetailModal({ visible, product, onClose }: ProductDetailM
           <View className="p-6">
             {/* Product Info */}
             <View className="mb-6">
-              <Text className={`text-2xl font-bold mb-2 ${
-                isDark ? 'text-white' : 'text-gray-900'
-              }`}>
+              <Text
+                className={`text-2xl font-bold mb-2 ${
+                  isDark ? 'text-white' : 'text-gray-900'
+                }`}
+              >
                 {product.name}
               </Text>
-              
-              <Text className={`text-3xl font-bold mb-4 ${
-                isDark ? 'text-primary-400' : 'text-primary-600'
-              }`}>
+
+              <Text
+                className={`text-3xl font-bold mb-4 ${
+                  isDark ? 'text-primary-400' : 'text-primary-600'
+                }`}
+              >
                 {formatPrice(product.price)}
               </Text>
-              
-              <Text className={`text-base leading-6 ${
-                isDark ? 'text-gray-300' : 'text-gray-700'
-              }`}>
+
+              <Text
+                className={`text-base leading-6 ${
+                  isDark ? 'text-gray-300' : 'text-gray-700'
+                }`}
+              >
                 {product.description}
               </Text>
             </View>
 
             {/* Category and Type */}
             <View className="flex-row mb-6">
-              <View className={`flex-1 p-3 rounded-lg mr-2 ${
-                isDark ? 'bg-gray-800' : 'bg-gray-100'
-              }`}>
-                <Text className={`text-sm font-medium ${
-                  isDark ? 'text-gray-400' : 'text-gray-600'
-                }`}>
+              <View
+                className={`flex-1 p-3 rounded-lg mr-2 ${
+                  isDark ? 'bg-gray-800' : 'bg-gray-100'
+                }`}
+              >
+                <Text
+                  className={`text-sm font-medium ${
+                    isDark ? 'text-gray-400' : 'text-gray-600'
+                  }`}
+                >
                   Categoria
                 </Text>
-                <Text className={`text-base font-semibold ${
-                  isDark ? 'text-white' : 'text-gray-900'
-                }`}>
+                <Text
+                  className={`text-base font-semibold ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}
+                >
                   {product.category.name}
                 </Text>
               </View>
-              
-              <View className={`flex-1 p-3 rounded-lg ml-2 ${
-                isDark ? 'bg-gray-800' : 'bg-gray-100'
-              }`}>
-                <Text className={`text-sm font-medium ${
-                  isDark ? 'text-gray-400' : 'text-gray-600'
-                }`}>
+
+              <View
+                className={`flex-1 p-3 rounded-lg ml-2 ${
+                  isDark ? 'bg-gray-800' : 'bg-gray-100'
+                }`}
+              >
+                <Text
+                  className={`text-sm font-medium ${
+                    isDark ? 'text-gray-400' : 'text-gray-600'
+                  }`}
+                >
                   Tipo
                 </Text>
-                <Text className={`text-base font-semibold ${
-                  isDark ? 'text-white' : 'text-gray-900'
-                }`}>
+                <Text
+                  className={`text-base font-semibold ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}
+                >
                   {product.type.name}
                 </Text>
               </View>
             </View>
 
             {/* Stock Status */}
-            <View className={`flex-row items-center p-3 rounded-lg mb-6 ${
-              product.inStock 
-                ? isDark ? 'bg-green-900/20' : 'bg-green-50'
-                : isDark ? 'bg-red-900/20' : 'bg-red-50'
-            }`}>
-              <Package size={20} color={product.inStock ? '#22c55e' : '#ef4444'} />
-              <Text className={`ml-2 font-medium ${
-                product.inStock ? 'text-green-600' : 'text-red-600'
-              }`}>
-                {product.inStock 
+            <View
+              className={`flex-row items-center p-3 rounded-lg mb-6 ${
+                product.inStock
+                  ? isDark
+                    ? 'bg-green-900/20'
+                    : 'bg-green-50'
+                  : isDark
+                  ? 'bg-red-900/20'
+                  : 'bg-red-50'
+              }`}
+            >
+              <Package
+                size={20}
+                color={product.inStock ? '#22c55e' : '#ef4444'}
+              />
+              <Text
+                className={`ml-2 font-medium ${
+                  product.inStock ? 'text-green-600' : 'text-red-600'
+                }`}
+              >
+                {product.inStock
                   ? `Em estoque (${product.stockQuantity} unidades)`
-                  : 'Fora de estoque'
-                }
+                  : 'Fora de estoque'}
               </Text>
             </View>
 
             {/* Size Selection */}
             {product.sizes && product.sizes.length > 0 && (
               <View className="mb-6">
-                <Text className={`text-lg font-semibold mb-3 ${
-                  isDark ? 'text-white' : 'text-gray-900'
-                }`}>
+                <Text
+                  className={`text-lg font-semibold mb-3 ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}
+                >
                   Tamanho
                 </Text>
                 <View className="flex-row flex-wrap">
@@ -201,13 +245,15 @@ export function ProductDetailModal({ visible, product, onClose }: ProductDetailM
                           : 'bg-white border-gray-300'
                       }`}
                     >
-                      <Text className={`font-medium ${
-                        selectedSize === size
-                          ? 'text-white'
-                          : isDark
-                          ? 'text-gray-200'
-                          : 'text-gray-700'
-                      }`}>
+                      <Text
+                        className={`font-medium ${
+                          selectedSize === size
+                            ? 'text-white'
+                            : isDark
+                            ? 'text-gray-200'
+                            : 'text-gray-700'
+                        }`}
+                      >
                         {size}
                       </Text>
                     </TouchableOpacity>
@@ -219,9 +265,11 @@ export function ProductDetailModal({ visible, product, onClose }: ProductDetailM
             {/* Color Selection */}
             {product.colors && product.colors.length > 0 && (
               <View className="mb-6">
-                <Text className={`text-lg font-semibold mb-3 ${
-                  isDark ? 'text-white' : 'text-gray-900'
-                }`}>
+                <Text
+                  className={`text-lg font-semibold mb-3 ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}
+                >
                   Cor
                 </Text>
                 <View className="flex-row flex-wrap">
@@ -237,13 +285,15 @@ export function ProductDetailModal({ visible, product, onClose }: ProductDetailM
                           : 'bg-white border-gray-300'
                       }`}
                     >
-                      <Text className={`font-medium ${
-                        selectedColor === color
-                          ? 'text-white'
-                          : isDark
-                          ? 'text-gray-200'
-                          : 'text-gray-700'
-                      }`}>
+                      <Text
+                        className={`font-medium ${
+                          selectedColor === color
+                            ? 'text-white'
+                            : isDark
+                            ? 'text-gray-200'
+                            : 'text-gray-700'
+                        }`}
+                      >
                         {color}
                       </Text>
                     </TouchableOpacity>
@@ -255,24 +305,30 @@ export function ProductDetailModal({ visible, product, onClose }: ProductDetailM
             {/* Specifications */}
             {product.specifications && product.specifications.length > 0 && (
               <View className="mb-6">
-                <Text className={`text-lg font-semibold mb-3 ${
-                  isDark ? 'text-white' : 'text-gray-900'
-                }`}>
+                <Text
+                  className={`text-lg font-semibold mb-3 ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}
+                >
                   Especificações
                 </Text>
-                <View className={`p-4 rounded-lg ${
-                  isDark ? 'bg-gray-800' : 'bg-gray-100'
-                }`}>
+                <View
+                  className={`p-4 rounded-lg ${
+                    isDark ? 'bg-gray-800' : 'bg-gray-100'
+                  }`}
+                >
                   {product.specifications.map((spec, index) => (
                     <View key={index} className="flex-row justify-between py-2">
-                      <Text className={`font-medium ${
-                        isDark ? 'text-gray-300' : 'text-gray-700'
-                      }`}>
+                      <Text
+                        className={`font-medium ${
+                          isDark ? 'text-gray-300' : 'text-gray-700'
+                        }`}
+                      >
                         {spec.name}:
                       </Text>
-                      <Text className={`${
-                        isDark ? 'text-white' : 'text-gray-900'
-                      }`}>
+                      <Text
+                        className={`${isDark ? 'text-white' : 'text-gray-900'}`}
+                      >
                         {spec.value}
                       </Text>
                     </View>
@@ -291,13 +347,17 @@ export function ProductDetailModal({ visible, product, onClose }: ProductDetailM
             )}
 
             {/* Delivery Info */}
-            <View className={`flex-row items-center p-3 rounded-lg ${
-              isDark ? 'bg-gray-800' : 'bg-gray-100'
-            }`}>
+            <View
+              className={`flex-row items-center p-3 rounded-lg ${
+                isDark ? 'bg-gray-800' : 'bg-gray-100'
+              }`}
+            >
               <Truck size={20} color={isDark ? '#9ca3af' : '#6b7280'} />
-              <Text className={`ml-2 text-sm ${
-                isDark ? 'text-gray-300' : 'text-gray-700'
-              }`}>
+              <Text
+                className={`ml-2 text-sm ${
+                  isDark ? 'text-gray-300' : 'text-gray-700'
+                }`}
+              >
                 Retirada na academia ou entrega mediante consulta
               </Text>
             </View>

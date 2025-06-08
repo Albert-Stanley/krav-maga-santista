@@ -32,7 +32,7 @@ export default function SplashScreen() {
         {/* Logo  */}
         <Image
           source={logoSplash}
-          className="w-32 h-32 mb-4"
+          className="w-32 h-32 mb-4 rounded-full"
           resizeMode="contain"
         />
 

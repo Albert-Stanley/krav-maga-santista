@@ -11,7 +11,13 @@ interface ProductCardProps {
   layout?: 'grid' | 'list';
 }
 
-export function ProductCard({ product, onPress, onAddToCart, layout = 'grid' }: ProductCardProps) {
+export function ProductCard({
+  product,
+  onPress,
+  onAddToCart,
+  layout = 'grid',
+}: ProductCardProps) {
+  const image = product.images[0];
   const { theme } = useThemeStore();
   const isDark = theme === 'dark';
   const screenWidth = Dimensions.get('window').width;
@@ -20,7 +26,7 @@ export function ProductCard({ product, onPress, onAddToCart, layout = 'grid' }: 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
+      currency: 'BRL',
     }).format(price);
   };
 
@@ -29,35 +35,45 @@ export function ProductCard({ product, onPress, onAddToCart, layout = 'grid' }: 
       <TouchableOpacity
         onPress={onPress}
         className={`flex-row p-4 rounded-lg mb-3 ${
-          isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+          isDark
+            ? 'bg-gray-800 border border-gray-700'
+            : 'bg-white border border-gray-200'
         }`}
       >
         <Image
-          source={{ uri: product.images[0] }}
+          source={typeof image === 'string' ? { uri: image } : image}
           className="w-20 h-20 rounded-lg"
           resizeMode="cover"
         />
-        
+
         <View className="flex-1 ml-4">
-          <Text className={`text-base font-semibold mb-1 ${
-            isDark ? 'text-white' : 'text-gray-900'
-          }`} numberOfLines={2}>
+          <Text
+            className={`text-base font-semibold mb-1 ${
+              isDark ? 'text-white' : 'text-gray-900'
+            }`}
+            numberOfLines={2}
+          >
             {product.name}
           </Text>
-          
-          <Text className={`text-sm mb-2 ${
-            isDark ? 'text-gray-400' : 'text-gray-600'
-          }`} numberOfLines={2}>
+
+          <Text
+            className={`text-sm mb-2 ${
+              isDark ? 'text-gray-400' : 'text-gray-600'
+            }`}
+            numberOfLines={2}
+          >
             {product.description}
           </Text>
-          
+
           <View className="flex-row items-center justify-between">
-            <Text className={`text-lg font-bold ${
-              isDark ? 'text-primary-400' : 'text-primary-600'
-            }`}>
+            <Text
+              className={`text-lg font-bold ${
+                isDark ? 'text-primary-400' : 'text-primary-600'
+              }`}
+            >
               {formatPrice(product.price)}
             </Text>
-            
+
             {!product.inStock && (
               <Text className="text-sm text-red-500 font-medium">
                 Fora de estoque
@@ -65,7 +81,7 @@ export function ProductCard({ product, onPress, onAddToCart, layout = 'grid' }: 
             )}
           </View>
         </View>
-        
+
         {onAddToCart && product.inStock && (
           <TouchableOpacity
             onPress={onAddToCart}
@@ -87,36 +103,46 @@ export function ProductCard({ product, onPress, onAddToCart, layout = 'grid' }: 
     <TouchableOpacity
       onPress={onPress}
       className={`rounded-lg mb-4 ${
-        isDark ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+        isDark
+          ? 'bg-gray-800 border border-gray-700'
+          : 'bg-white border border-gray-200'
       }`}
       style={{ width: cardWidth }}
     >
       <Image
-        source={{ uri: product.images[0] }}
+        source={typeof image === 'string' ? { uri: image } : image}
         className="w-full h-40 rounded-t-lg"
         resizeMode="cover"
       />
-      
+
       <View className="p-3">
-        <Text className={`text-sm font-semibold mb-1 ${
-          isDark ? 'text-white' : 'text-gray-900'
-        }`} numberOfLines={2}>
+        <Text
+          className={`text-sm font-semibold mb-1 ${
+            isDark ? 'text-white' : 'text-gray-900'
+          }`}
+          numberOfLines={2}
+        >
           {product.name}
         </Text>
-        
-        <Text className={`text-xs mb-2 ${
-          isDark ? 'text-gray-400' : 'text-gray-600'
-        }`} numberOfLines={2}>
+
+        <Text
+          className={`text-xs mb-2 ${
+            isDark ? 'text-gray-400' : 'text-gray-600'
+          }`}
+          numberOfLines={2}
+        >
           {product.description}
         </Text>
-        
+
         <View className="flex-row items-center justify-between">
-          <Text className={`text-base font-bold ${
-            isDark ? 'text-primary-400' : 'text-primary-600'
-          }`}>
+          <Text
+            className={`text-base font-bold ${
+              isDark ? 'text-primary-400' : 'text-primary-600'
+            }`}
+          >
             {formatPrice(product.price)}
           </Text>
-          
+
           {onAddToCart && product.inStock && (
             <TouchableOpacity
               onPress={onAddToCart}
@@ -128,7 +154,7 @@ export function ProductCard({ product, onPress, onAddToCart, layout = 'grid' }: 
             </TouchableOpacity>
           )}
         </View>
-        
+
         {!product.inStock && (
           <Text className="text-xs text-red-500 font-medium mt-1">
             Fora de estoque
