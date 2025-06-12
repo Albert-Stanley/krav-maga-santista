@@ -1,20 +1,20 @@
 import { Student, Rank } from '@/types/student';
 import { Product, ProductCategory, ProductType } from '@/types/product';
 import dayjs from 'dayjs';
-import kimono1 from '@/assets/images/products/kimono-oficial.png';
-import protetor1 from '@/assets/images/products/bucal.png';
-import protetor2 from '@/assets/images/products/bucal2.png';
-import protetor3 from '@/assets/images/products/bucal3.png';
-import camiseta1 from '@/assets/images/products/hashguard.png';
-import camiseta2 from '@/assets/images/products/hashguard2.png';
-import manual from '@/assets/images/products/manual.png';
-import whey from '@/assets/images/products/whey.png';
-import whey2 from '@/assets/images/products/whey2.png';
-import bandagem1 from '@/assets/images/products/bandagem.png';
-import bandagem2 from '@/assets/images/products/bandagem2.png';
-import bandagem3 from '@/assets/images/products/bandagem3.png';
-import sacoPancada from '@/assets/images/products/sacopancada.png';
-import sacoPancada2 from '@/assets/images/products/sacopancada2.png';
+import kimono1 from 'assets/images/products/kimono-oficial.png';
+import protetor1 from '@assets/images/products/bucal.png';
+import protetor2 from '@assets/images/products/bucal2.png';
+import protetor3 from '@assets/images/products/bucal3.png';
+import camiseta1 from '@assets/images/products/hashguard.png';
+import camiseta2 from '@assets/images/products/hashguard2.png';
+import manual from '@assets/images/products/manual.png';
+import whey from '@assets/images/products/whey.png';
+import whey2 from '@assets/images/products/whey2.png';
+import bandagem1 from '@assets/images/products/bandagem.png';
+import bandagem2 from '@assets/images/products/bandagem2.png';
+import bandagem3 from '@assets/images/products/bandagem3.png';
+import sacoPancada from '@assets/images/products/sacopancada.png';
+import sacoPancada2 from '@assets/images/products/sacopancada2.png';
 // Mock Ranks
 export const mockRanks: Rank[] = [
   {

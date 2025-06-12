@@ -3,7 +3,7 @@ import { View, Text, Image } from 'react-native';
 import { router } from 'expo-router';
 import { useAuthStore } from '@/store/auth';
 import { useThemeStore } from '@/store/theme';
-const logoSplash = require('../assets/images/splash.png');
+const logoSplash = require('@assets/images/splash.png');
 
 export default function SplashScreen() {
   const { isAuthenticated } = useAuthStore();

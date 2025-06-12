@@ -15,7 +15,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useAuthStore } from '@/store/auth';
 import { useThemeStore } from '@/store/theme';
 import { LoginFormData } from '@/types/auth';
-const logo = require('@/assets/images/logo_app.png'); // Ajuste o caminho conforme necessário
+const logo = require('@assets/images/logo_app.png');
 
 export default function Login() {
   const { login, isLoading } = useAuthStore();

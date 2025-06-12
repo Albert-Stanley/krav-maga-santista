@@ -23,7 +23,7 @@ import { PaymentStatusBadge } from '@/components/ui/PaymentStatusBadge';
 import { useAuthStore } from '@/store/auth';
 import { useThemeStore } from '@/store/theme';
 import { currentUser } from '@/data/mockData';
-const logo = require('@/assets/images/logo_app.png'); // Ajuste o caminho conforme necessário
+const logo = require('@assets/images/logo_app.png');
 
 export default function Home() {
   const { user, isLoading } = useAuthStore();
