@@ -1,27 +1,10 @@
-import '../../global.css';
-import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import * as SplashScreen from 'expo-splash-screen';
-import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { useThemeStore } from '@/store/theme';
-import { Platform } from 'react-native';
+import '../../global.css';
 
-if (Platform.OS !== 'web') {
-  SplashScreen.preventAutoHideAsync();
-}
-
-export default function RootLayout() {
+export default function RootLayoutWeb() {
   const { theme } = useThemeStore();
-
-  useFrameworkReady();
-
-  useEffect(() => {
-    // Apenas em mobile, esconda a splash screen quando o app estiver pronto
-    if (Platform.OS !== 'web') {
-      SplashScreen.hideAsync();
-    }
-  }, []);
 
   return (
     <>
