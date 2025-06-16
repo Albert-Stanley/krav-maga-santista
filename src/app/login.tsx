@@ -23,16 +23,19 @@ export default function Login() {
   const isDark = theme === 'dark';
 
   const handleLogin = async (data: LoginFormData) => {
-    try {
-      await login(data);
-      router.replace('/(tabs)');
-    } catch (error) {
-      Alert.alert(
-        'Erro de Login',
-        error instanceof Error ? error.message : 'Erro desconhecido',
-        [{ text: 'OK' }]
-      );
-    }
+    // DESCOMENTE AQUI PARA TESTAR O SEU BACKEND
+
+    // try {
+    //   await login(data);
+    //   router.replace('/(tabs)');
+    // } catch (error) {
+    //   Alert.alert(
+    //     'Erro de Login',
+    //     error instanceof Error ? error.message : 'Erro desconhecido',
+    //     [{ text: 'OK' }]
+    //   );
+    // }
+    router.replace('/(tabs)');
   };
 
   const handleSignUpNavigation = () => {

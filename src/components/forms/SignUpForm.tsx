@@ -9,30 +9,12 @@ import { SignUpFormData } from '@/types/auth';
 import { useThemeStore } from '@/store/theme';
 
 const signUpSchema = z.object({
-  name: z
-    .string()
-    .min(2, 'Nome deve ter pelo menos 2 caracteres'),
-  email: z
-    .string()
-    .min(1, 'Email é obrigatório')
-    .email('Email inválido'),
-  phone: z
-    .string()
-    .min(10, 'Telefone inválido')
-    .regex(/^\(\d{2}\)\s\d{4,5}-\d{4}$/, 'Formato: (11) 99999-9999'),
-  password: z
-    .string()
-    .min(6, 'Senha deve ter pelo menos 6 caracteres'),
-  confirmPassword: z
-    .string()
-    .min(6, 'Confirmação de senha é obrigatória'),
-  birthDate: z
-    .string()
-    .min(1, 'Data de nascimento é obrigatória')
-    .regex(/^\d{2}\/\d{2}\/\d{4}$/, 'Formato: DD/MM/AAAA'),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Senhas não coincidem',
-  path: ['confirmPassword'],
+  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
+  sobrenome: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
+  email: z.string().min(1, 'Email é obrigatório').email('Email inválido'),
+  password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
+  confirmPassword: z.string().min(6, 'Confirmação de senha é obrigatória'),
+  faixa: z.string().min(1, 'Faixa é obrigatória'),
 });
 
 interface SignUpFormProps {
@@ -53,10 +35,10 @@ export function SignUpForm({ onSubmit, isLoading }: SignUpFormProps) {
     defaultValues: {
       name: '',
       email: '',
-      phone: '',
+      faixa: '',
+      sobrenome: '',
       password: '',
       confirmPassword: '',
-      birthDate: '',
     },
   });
 
@@ -116,40 +98,6 @@ export function SignUpForm({ onSubmit, isLoading }: SignUpFormProps) {
 
       <Controller
         control={control}
-        name="phone"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            label="Telefone"
-            placeholder="(11) 99999-9999"
-            value={value}
-            onChangeText={(text) => onChange(formatPhone(text))}
-            onBlur={onBlur}
-            error={errors.phone?.message}
-            keyboardType="phone-pad"
-            maxLength={15}
-          />
-        )}
-      />
-
-      <Controller
-        control={control}
-        name="birthDate"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            label="Data de Nascimento"
-            placeholder="DD/MM/AAAA"
-            value={value}
-            onChangeText={(text) => onChange(formatDate(text))}
-            onBlur={onBlur}
-            error={errors.birthDate?.message}
-            keyboardType="numeric"
-            maxLength={10}
-          />
-        )}
-      />
-
-      <Controller
-        control={control}
         name="password"
         render={({ field: { onChange, onBlur, value } }) => (
           <Input
@@ -176,6 +124,22 @@ export function SignUpForm({ onSubmit, isLoading }: SignUpFormProps) {
             onBlur={onBlur}
             error={errors.confirmPassword?.message}
             secureTextEntry
+          />
+        )}
+      />
+
+      <Controller
+        control={control}
+        name="faixa"
+        render={({ field: { onChange, onBlur, value } }) => (
+          <Input
+            label="Faixa"
+            placeholder="Sua faixa (ex: Branca, Azul, etc.)"
+            value={value}
+            onChangeText={onChange}
+            onBlur={onBlur}
+            error={errors.faixa?.message}
+            autoCapitalize="words"
           />
         )}
       />

@@ -1,56 +1,105 @@
-import React from 'react';
+// src/app/(tabs)/admin.tsx
+
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Users, Search, Filter } from 'lucide-react-native';
+import { Users, PlusCircle, Pencil, Trash2 } from 'lucide-react-native';
+import { router, useFocusEffect } from 'expo-router';
 import { SearchInput } from '@/components/ui/SearchInput';
 import { Card } from '@/components/ui/Card';
-import { RankBadge } from '@/components/ui/RankBadge';
-import { PaymentStatusBadge } from '@/components/ui/PaymentStatusBadge';
 import { useThemeStore } from '@/store/theme';
-import { useStudentsStore } from '@/store/students';
+import { useUsersStore } from '@/store/students'; // Store de CRUD de usuários
+import { User } from '@/types/auth';
 
 export default function Admin() {
   const { theme } = useThemeStore();
-  const { filteredStudents, searchQuery, setSearchQuery } = useStudentsStore();
+  const {
+    users, // Usaremos `users` para o total e `filteredUsers` para a lista
+    filteredUsers,
+    isLoading,
+    fetchUsers,
+    deleteUser,
+    searchQuery,
+    setSearchQuery,
+  } = useUsersStore();
 
   const isDark = theme === 'dark';
   const screenWidth = Dimensions.get('window').width;
   const isWeb = screenWidth > 768;
 
-  const handleClearSearch = () => {
-    setSearchQuery('');
+  // useFocusEffect garante que os dados sejam recarregados sempre que a tela entrar em foco.
+  // Isso é útil para ver as atualizações após criar ou editar um usuário.
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchUsers();
+    }, [])
+  );
+
+  const handleClearSearch = () => setSearchQuery('');
+
+  const handleDelete = (userId: string, userName: string) => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      `Você tem certeza que deseja excluir o usuário "${userName}"? Esta ação não pode ser desfeita.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteUser(userId);
+              Alert.alert('Sucesso', 'Usuário excluído com sucesso.');
+            } catch (error) {
+              Alert.alert('Erro', 'Não foi possível excluir o usuário.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleNavigateToCreate = () => {
+    router.push('/admin/create-user');
+  };
+
+  const handleNavigateToEdit = (userId: string) => {
+    router.push(`/admin/edit-user?id=${userId}`);
+  };
+
+  const getActiveUsersCount = () => {
+    return users.filter((user) => user.isActive).length;
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
-  };
-
-  const getActiveStudentsCount = () => {
-    return filteredStudents.filter((student) => student.isActive).length;
-  };
-
-  const getPaymentStatusCounts = () => {
-    const counts = {
-      paid: 0,
-      due_soon: 0,
-      overdue: 0,
-    };
-
-    filteredStudents.forEach((student) => {
-      counts[student.paymentStatus.status]++;
+    if (!dateString) return 'N/A';
+    // Adiciona timeZone para evitar problemas de data off-by-one
+    return new Date(dateString).toLocaleDateString('pt-BR', {
+      timeZone: 'UTC',
     });
-
-    return counts;
   };
 
-  const paymentCounts = getPaymentStatusCounts();
+  // Exibe o loading inicial
+  if (isLoading && users.length === 0) {
+    return (
+      <SafeAreaView
+        className={`flex-1 justify-center items-center ${
+          isDark ? 'bg-gray-900' : 'bg-gray-50'
+        }`}
+      >
+        <ActivityIndicator size="large" color={isDark ? '#fff' : '#1f2937'} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView
@@ -59,100 +108,70 @@ export default function Admin() {
     >
       <View className={`flex-1 ${isWeb ? 'max-w-6xl mx-auto w-full' : ''}`}>
         {/* Header */}
-        <View className="px-6 py-4">
-          <View className="flex-row items-center mb-6">
-            <View className="w-10 h-10 bg-primary-600 rounded-full items-center justify-center mr-3">
-              <Users size={20} color="#fff" />
+        <View className="px-6 pt-4 pb-2">
+          <View className="flex-row justify-between items-center mb-6">
+            <View className="flex-row items-center">
+              <View className="w-10 h-10 bg-primary-600 rounded-full items-center justify-center mr-3">
+                <Users size={20} color="#fff" />
+              </View>
+              <View>
+                <Text
+                  className={`text-2xl font-bold ${
+                    isDark ? 'text-white' : 'text-gray-900'
+                  }`}
+                >
+                  Administração
+                </Text>
+                <Text
+                  className={`text-sm ${
+                    isDark ? 'text-gray-400' : 'text-gray-600'
+                  }`}
+                >
+                  Gestão de usuários
+                </Text>
+              </View>
             </View>
-            <View>
+            <TouchableOpacity
+              onPress={handleNavigateToCreate}
+              className="flex-row items-center bg-primary-600 py-2 px-3 rounded-lg"
+            >
+              <PlusCircle size={20} color="#fff" />
+              {isWeb && (
+                <Text className="text-white font-semibold ml-2">Adicionar</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* Stats Cards Adaptados */}
+          <View className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <Card>
               <Text
                 className={`text-2xl font-bold ${
                   isDark ? 'text-white' : 'text-gray-900'
                 }`}
               >
-                Administração
+                {users.length}
               </Text>
               <Text
                 className={`text-sm ${
                   isDark ? 'text-gray-400' : 'text-gray-600'
                 }`}
               >
-                Gestão de alunos e academia
+                Total de Usuários
               </Text>
-            </View>
-          </View>
-
-          {/* Stats Cards */}
-          <View
-            className={`${
-              isWeb
-                ? 'grid grid-cols-4 gap-4 mb-6'
-                : 'flex-row flex-wrap justify-between mb-6'
-            }`}
-          >
-            <View className={isWeb ? '' : 'w-[48%] mb-4'}>
-              <Card>
-                <Text
-                  className={`text-2xl font-bold ${
-                    isDark ? 'text-white' : 'text-gray-900'
-                  }`}
-                >
-                  {getActiveStudentsCount()}
-                </Text>
-                <Text
-                  className={`text-sm ${
-                    isDark ? 'text-gray-400' : 'text-gray-600'
-                  }`}
-                >
-                  Alunos Ativos
-                </Text>
-              </Card>
-            </View>
-
-            <View className={isWeb ? '' : 'w-[48%] mb-4'}>
-              <Card>
-                <Text className="text-2xl font-bold text-green-600">
-                  {paymentCounts.paid}
-                </Text>
-                <Text
-                  className={`text-sm ${
-                    isDark ? 'text-gray-400' : 'text-gray-600'
-                  }`}
-                >
-                  Pagamentos em Dia
-                </Text>
-              </Card>
-            </View>
-
-            <View className={isWeb ? '' : 'w-[48%] mb-4'}>
-              <Card>
-                <Text className="text-2xl font-bold text-yellow-600">
-                  {paymentCounts.due_soon}
-                </Text>
-                <Text
-                  className={`text-sm ${
-                    isDark ? 'text-gray-400' : 'text-gray-600'
-                  }`}
-                >
-                  Vencimento Próximo
-                </Text>
-              </Card>
-            </View>
-
-            <View className={isWeb ? '' : 'w-[48%] mb-4'}>
-              <Card>
-                <Text className="text-2xl font-bold text-red-600">
-                  {paymentCounts.overdue}
-                </Text>
-                <Text
-                  className={`text-sm ${
-                    isDark ? 'text-gray-400' : 'text-gray-600'
-                  }`}
-                >
-                  Em Atraso
-                </Text>
-              </Card>
-            </View>
+            </Card>
+            <Card>
+              <Text className="text-2xl font-bold text-green-600">
+                {getActiveUsersCount()}
+              </Text>
+              <Text
+                className={`text-sm ${
+                  isDark ? 'text-gray-400' : 'text-gray-600'
+                }`}
+              >
+                Usuários Ativos
+              </Text>
+            </Card>
           </View>
 
           {/* Search */}
@@ -160,11 +179,11 @@ export default function Admin() {
             value={searchQuery}
             onChangeText={setSearchQuery}
             onClear={handleClearSearch}
-            placeholder="Buscar alunos..."
+            placeholder="Buscar por nome ou email..."
           />
         </View>
 
-        {/* Students List */}
+        {/* Lista de Usuários */}
         <ScrollView
           className="flex-1 px-6"
           showsVerticalScrollIndicator={false}
@@ -175,138 +194,90 @@ export default function Admin() {
                 isDark ? 'text-gray-400' : 'text-gray-600'
               }`}
             >
-              {filteredStudents.length} aluno(s) encontrado(s)
+              {filteredUsers.length} usuário(s) encontrado(s)
             </Text>
 
-            {isWeb ? (
-              // Web Table Layout
-              <Card>
-                <View
-                  className={`border-b pb-3 mb-3 ${
-                    isDark ? 'border-gray-700' : 'border-gray-200'
-                  }`}
-                >
-                  <View className="flex-row">
-                    <Text
-                      className={`flex-1 font-semibold ${
-                        isDark ? 'text-gray-200' : 'text-gray-700'
-                      }`}
-                    >
-                      Nome
-                    </Text>
-                    <Text
-                      className={`w-32 font-semibold ${
-                        isDark ? 'text-gray-200' : 'text-gray-700'
-                      }`}
-                    >
-                      Graduação
-                    </Text>
-                    <Text
-                      className={`w-40 font-semibold ${
-                        isDark ? 'text-gray-200' : 'text-gray-700'
-                      }`}
-                    >
-                      Status Pagamento
-                    </Text>
-                    <Text
-                      className={`w-32 font-semibold ${
-                        isDark ? 'text-gray-200' : 'text-gray-700'
-                      }`}
-                    >
-                      Próximo Venc.
-                    </Text>
-                  </View>
-                </View>
-
-                {filteredStudents.map((student, index) => (
-                  <View
-                    key={student.id}
-                    className={`flex-row items-center py-3 ${
-                      index < filteredStudents.length - 1
-                        ? `border-b ${
-                            isDark ? 'border-gray-700' : 'border-gray-200'
-                          }`
-                        : ''
-                    }`}
-                  >
-                    <View className="flex-1">
-                      <Text
-                        className={`font-medium ${
-                          isDark ? 'text-white' : 'text-gray-900'
-                        }`}
-                      >
-                        {student.name}
-                      </Text>
-                      <Text
-                        className={`text-sm ${
-                          isDark ? 'text-gray-400' : 'text-gray-600'
-                        }`}
-                      >
-                        {student.email}
-                      </Text>
-                    </View>
-
-                    <View className="w-32">
-                      <RankBadge rank={student.rank} size="sm" showLevel />
-                    </View>
-
-                    <View className="w-40">
-                      <PaymentStatusBadge
-                        paymentStatus={student.paymentStatus}
-                        size="sm"
-                      />
-                    </View>
-
-                    <View className="w-32">
-                      <Text
-                        className={`text-sm ${
-                          isDark ? 'text-gray-300' : 'text-gray-700'
-                        }`}
-                      >
-                        {formatDate(student.nextPaymentDate)}
-                      </Text>
-                    </View>
-                  </View>
-                ))}
-              </Card>
-            ) : (
-              // Mobile Card Layout
+            {/* Mobile Card Layout */}
+            {!isWeb && (
               <View>
-                {filteredStudents.map((student) => (
-                  <Card key={student.id} style={{ marginBottom: 16 }}>
+                {filteredUsers.map((user) => (
+                  <Card key={user.id} style={{ marginBottom: 16 }}>
                     <View className="space-y-3">
-                      <View className="flex-row justify-between items-start">
-                        <View className="flex-1">
-                          <Text
-                            className={`text-lg font-semibold ${
-                              isDark ? 'text-white' : 'text-gray-900'
-                            }`}
-                          >
-                            {student.name}
-                          </Text>
-                          <Text
-                            className={`text-sm ${
-                              isDark ? 'text-gray-400' : 'text-gray-600'
-                            }`}
-                          >
-                            {student.email}
-                          </Text>
-                        </View>
-                        <RankBadge rank={student.rank} size="sm" />
-                      </View>
-
-                      <View className="flex-row justify-between items-center">
-                        <PaymentStatusBadge
-                          paymentStatus={student.paymentStatus}
-                          size="sm"
-                        />
+                      <View>
+                        <Text
+                          className={`text-lg font-semibold ${
+                            isDark ? 'text-white' : 'text-gray-900'
+                          }`}
+                        >
+                          {user.name}
+                        </Text>
                         <Text
                           className={`text-sm ${
                             isDark ? 'text-gray-400' : 'text-gray-600'
                           }`}
                         >
-                          Próx. venc: {formatDate(student.nextPaymentDate)}
+                          {user.email}
                         </Text>
+                      </View>
+                      <View
+                        className={`border-t ${
+                          isDark ? 'border-gray-700' : 'border-gray-200'
+                        }`}
+                      />
+                      <View className="flex-row justify-between items-center">
+                        <View>
+                          <Text
+                            className={`text-xs font-bold uppercase ${
+                              isDark ? 'text-gray-500' : 'text-gray-500'
+                            }`}
+                          >
+                            Faixa
+                          </Text>
+                          <Text
+                            className={`text-sm ${
+                              isDark ? 'text-gray-300' : 'text-gray-700'
+                            }`}
+                          >
+                            {user.faixa || user.membershipLevel}
+                          </Text>
+                        </View>
+                        <View>
+                          <Text
+                            className={`text-xs font-bold uppercase ${
+                              isDark ? 'text-gray-500' : 'text-gray-500'
+                            }`}
+                          >
+                            Desde
+                          </Text>
+                          <Text
+                            className={`text-sm ${
+                              isDark ? 'text-gray-300' : 'text-gray-700'
+                            }`}
+                          >
+                            {formatDate(user.joinDate)}
+                          </Text>
+                        </View>
+                      </View>
+                      {/* CRUD Actions */}
+                      <View className="flex-row justify-end space-x-4 pt-2">
+                        <TouchableOpacity
+                          onPress={() => handleNavigateToEdit(user.id)}
+                          className="p-2"
+                        >
+                          <Pencil
+                            size={20}
+                            color={isDark ? '#3b82f6' : '#2563eb'}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => handleDelete(user.id, user.name)}
+                          className="p-2"
+                        >
+                          <Trash2
+                            size={20}
+                            color={isDark ? '#ef4444' : '#dc2626'}
+                          />
+                        </TouchableOpacity>
                       </View>
                     </View>
                   </Card>
@@ -314,21 +285,22 @@ export default function Admin() {
               </View>
             )}
 
-            {filteredStudents.length === 0 && (
+            {/* Mensagem de nenhum resultado */}
+            {filteredUsers.length === 0 && (
               <View className="items-center py-12">
                 <Text
                   className={`text-lg font-medium mb-2 ${
                     isDark ? 'text-gray-400' : 'text-gray-600'
                   }`}
                 >
-                  Nenhum aluno encontrado
+                  Nenhum usuário encontrado
                 </Text>
                 <Text
                   className={`text-center ${
                     isDark ? 'text-gray-500' : 'text-gray-500'
                   }`}
                 >
-                  Tente ajustar o termo de busca
+                  Tente ajustar o termo de busca ou adicione um novo usuário.
                 </Text>
               </View>
             )}
@@ -338,3 +310,25 @@ export default function Admin() {
     </SafeAreaView>
   );
 }
+
+// Pequenos estilos para os botões de ação se necessário
+const styles = StyleSheet.create({
+  actionButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  editButton: {
+    backgroundColor: '#3b82f6', // blue-500
+  },
+  deleteButton: {
+    backgroundColor: '#ef4444', // red-500
+  },
+  actionText: {
+    color: 'white',
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+});

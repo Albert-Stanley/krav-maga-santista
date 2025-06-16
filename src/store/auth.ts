@@ -1,93 +1,99 @@
 import { create } from 'zustand';
-import dayjs from 'dayjs';
-import { AuthState, LoginFormData, SignUpFormData } from '@/types/auth';
-import { Student } from '@/types/student';
-import { mockRanks, currentUser } from '@/data/mockData';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import api from '@/services/api';
+import { AuthState, LoginFormData, SignUpFormData, User } from '@/types/auth';
+import { secureStorageAdapter } from './storage';
 
-// Mock de usuário autenticado (para simulação)
-const mockAuthenticatedUser: Student = currentUser;
-
-// Estado da store de autenticação com tipo personalizado para incluir Student
-interface AuthStateWithStudent extends Omit<AuthState, 'user'> {
-  user: Student | null;
+// O backend deve retornar o usuário e um token
+interface AuthResponse {
+  user: User;
+  token: string;
 }
 
-interface AuthStore extends AuthStateWithStudent {
+interface AuthStore extends AuthState {
+  token: string | null; // Adicionamos o estado do token
   login: (data: LoginFormData) => Promise<void>;
   signUp: (data: SignUpFormData) => Promise<void>;
   logout: () => void;
   setLoading: (loading: boolean) => void;
 }
 
-export const useAuthStore = create<AuthStore>((set) => ({
-  // Estado inicial
-  user: null,
-  isAuthenticated: false,
-  isLoading: false,
-
-  // Função de login simulada
-  login: async (data: LoginFormData) => {
-    set({ isLoading: true });
-
-    // Simula uma chamada de API com atraso
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Verificação simples (em produção haveria verificação real)
-    if (data.email && data.password) {
-      set({
-        user: mockAuthenticatedUser, // Usa mock do usuário Student
-        isAuthenticated: true,
-        isLoading: false,
-      });
-    } else {
-      set({ isLoading: false });
-      throw new Error('Email e senha são obrigatórios');
-    }
-  },
-
-  // Função de cadastro simulada
-  signUp: async (data: SignUpFormData) => {
-    set({ isLoading: true });
-
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Criação de novo usuário com dados padrões
-    const newUser: Student = {
-      id: Date.now().toString(),
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      birthDate: data.birthDate,
-      joinDate: new Date().toISOString().split('T')[0],
-      isActive: true,
-      rank: mockRanks[0], // Faixa Branca como padrão
-      paymentStatus: {
-        status: 'paid',
-        lastPaymentDate: dayjs().format('YYYY-MM-DD'),
-        amount: 150,
-      },
-      nextPaymentDate: dayjs().add(30, 'days').format('YYYY-MM-DD'),
-      monthlyFee: 150,
-    };
-
-    set({
-      user: newUser,
-      isAuthenticated: true,
-      isLoading: false,
-    });
-  },
-
-  // Função de logout
-  logout: () => {
-    set({
+// Usaremos o middleware 'persist' para que o login não seja perdido ao fechar o app
+export const useAuthStore = create(
+  persist<AuthStore>(
+    (set) => ({
+      // Estado inicial
       user: null,
+      token: null,
       isAuthenticated: false,
       isLoading: false,
-    });
-  },
 
-  // Controle manual de loading
-  setLoading: (loading: boolean) => {
-    set({ isLoading: loading });
-  },
-}));
+      // Função de login atualizada
+      login: async (data: LoginFormData) => {
+        set({ isLoading: true });
+        try {
+          const response = await api.post<AuthResponse>('/login', data);
+          const { user, token } = response.data;
+
+          set({ user, token, isAuthenticated: true });
+        } catch (error) {
+          console.error('Falha no login:', error);
+          throw new Error('Email ou senha inválidos.');
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      // Função de cadastro atualizada
+      signUp: async (data: SignUpFormData) => {
+        set({ isLoading: true });
+        try {
+          const payload = {
+            Nome: data.name,
+            Sobrenome: data.sobrenome,
+            Email: data.email,
+            Password: data.password,
+            Faixa: data.faixa,
+          };
+          const response = await api.post<AuthResponse>('/Users', payload);
+          const { user, token } = response.data;
+
+          set({ user, token, isAuthenticated: true });
+        } catch (error) {
+          console.error('Falha no cadastro:', error);
+          throw new Error('Não foi possível realizar o cadastro.');
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      // Logout agora também limpa o token
+      logout: () => {
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          isLoading: false,
+        });
+      },
+
+      setLoading: (loading: boolean) => {
+        set({ isLoading: loading });
+      },
+    }),
+    {
+      name: 'auth-storage', // Nome da chave no AsyncStorage
+      storage: createJSONStorage(() => secureStorageAdapter),
+      partialize: (state) => ({
+        user: state.user ?? null,
+        token: state.token ?? null,
+        isAuthenticated: state.isAuthenticated ?? false,
+        isLoading: false,
+        login: state.login,
+        signUp: state.signUp,
+        logout: state.logout,
+        setLoading: state.setLoading,
+      }), // Escolhe quais partes do estado persistir
+    }
+  )
+);

@@ -1,4 +1,6 @@
 export interface User {
+  faixa: any;
+  sobrenome: any;
   id: string;
   name: string;
   email: string;
@@ -16,11 +18,11 @@ export interface LoginFormData {
 
 export interface SignUpFormData {
   name: string;
+  sobrenome?: string;
   email: string;
-  phone: string;
   password: string;
   confirmPassword: string;
-  birthDate: string;
+  faixa: string;
 }
 
 export interface AuthState {

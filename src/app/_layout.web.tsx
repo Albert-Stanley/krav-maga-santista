@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useThemeStore } from '@/store/theme';
-import '../../global.css';
+// import '../../global.css';
 
 export default function RootLayoutWeb() {
   const { theme } = useThemeStore();

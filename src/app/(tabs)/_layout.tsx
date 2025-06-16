@@ -66,7 +66,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="admin"
         options={{
-          href: isAdmin ? '/(tabs)/admin' : null,
+          // href: isAdmin ? '/(tabs)/admin' : null,
 
           title: 'Admin',
           tabBarIcon: ({ color, size }) => <Users size={size} color={color} />,
