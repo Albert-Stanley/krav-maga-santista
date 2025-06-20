@@ -1,3 +1,5 @@
+import type { Address, EmergencyContact, Rank } from './student';
+
 export interface User {
   faixa: any;
   sobrenome: any;
@@ -9,6 +11,9 @@ export interface User {
   membershipLevel: 'beginner' | 'intermediate' | 'advanced' | 'instructor';
   joinDate: string;
   isActive: boolean;
+  address?: Address;
+  emergencyContact?: EmergencyContact;
+  rank?: Rank;
 }
 
 export interface LoginFormData {

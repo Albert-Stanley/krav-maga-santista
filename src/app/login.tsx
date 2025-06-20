@@ -23,7 +23,7 @@ export default function Login() {
   const isDark = theme === 'dark';
 
   const handleLogin = async (data: LoginFormData) => {
-    // DESCOMENTE AQUI PARA TESTAR O SEU BACKEND
+    // DESCOMENTE AQUI PARA TESTAR O BACKEND
 
     // try {
     //   await login(data);

@@ -4,7 +4,7 @@ export interface Student {
   email: string;
   phone?: string;
   birthDate?: string;
-  rank: Rank;
+  rank?: Rank;
   joinDate: string;
   isActive: boolean;
   paymentStatus: PaymentStatus;
@@ -26,6 +26,8 @@ export interface PaymentStatus {
   status: 'paid' | 'due_soon' | 'overdue';
   lastPaymentDate?: string;
   amount: number;
+  monthlyFee?: number;
+  nextPaymentDate?: string;
 }
 
 export interface Address {
