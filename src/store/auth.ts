@@ -11,14 +11,13 @@ interface AuthResponse {
 }
 
 interface AuthStore extends AuthState {
-  token: string | null; // Adicionamos o estado do token
+  token: string | null;
   login: (data: LoginFormData) => Promise<void>;
   signUp: (data: SignUpFormData) => Promise<void>;
   logout: () => void;
   setLoading: (loading: boolean) => void;
 }
 
-// Usaremos o middleware 'persist' para que o login não seja perdido ao fechar o app
 export const useAuthStore = create(
   persist<AuthStore>(
     (set) => ({
@@ -28,7 +27,7 @@ export const useAuthStore = create(
       isAuthenticated: false,
       isLoading: false,
 
-      // Função de login atualizada
+      // Função de login
       login: async (data: LoginFormData) => {
         set({ isLoading: true });
         try {
@@ -44,7 +43,7 @@ export const useAuthStore = create(
         }
       },
 
-      // Função de cadastro atualizada
+      // Função de cadastro
       signUp: async (data: SignUpFormData) => {
         set({ isLoading: true });
         try {
@@ -67,7 +66,7 @@ export const useAuthStore = create(
         }
       },
 
-      // Logout agora também limpa o token
+      // Logout limpa o token
       logout: () => {
         set({
           user: null,
@@ -93,7 +92,7 @@ export const useAuthStore = create(
         signUp: state.signUp,
         logout: state.logout,
         setLoading: state.setLoading,
-      }), // Escolhe quais partes do estado persistir
+      }),
     }
   )
 );
