@@ -1,8 +1,9 @@
 # 🥋 Aplicativo para Academia de Krav Maga (Front-end)
 
 Este é o repositório do front-end para o aplicativo da academia Centro Santista de Krav Maga, desenvolvido para a disciplina de Programação Orientada a Objetos (POO). O objetivo é criar uma interface móvel para alunos e professores, facilitando a gestão de informações, o controle de mensalidades e a comunicação.
-
-![Demonstração](./assets/demo-video-ip.gif)
+<p align="center">
+  <img src="./assets/demo-video-ip.GIF" alt="Demonstração" width="200" height="400" />
+</p>
 
 **Sobre o Projeto**  
 O aplicativo foi concebido para resolver desafios comuns em academias, como o controle de pagamentos, a centralização das informações dos alunos (faixa e graduação) e a criação de um novo canal para a venda de produtos. Este projeto visa atender a um público de aproximadamente 300 alunos, focando em uma experiência de usuário fluida e funcional.
